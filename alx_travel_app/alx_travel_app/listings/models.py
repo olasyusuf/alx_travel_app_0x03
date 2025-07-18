@@ -31,20 +31,6 @@ class Users(AbstractUser):
         return self.created_at.strftime("%b %d, %Y, %H:%M %p").replace("AM", "a.m.").replace("PM", "p.m.")
 
 
-class PropertyFeature(models.Model):
-    amenity_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, null=False)
-    name= models.CharField(max_length=10, null=False, choices=AMENITIES.choices)
-    qty = models.IntegerField(null=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return self.name
-    
-    @property
-    def formatted_created_at(self):
-        return self.created_at.strftime("%b %d, %Y, %H:%M %p").replace("AM", "a.m.").replace("PM", "p.m.")
-
-
 class Listing(models.Model):
     listing_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, null=False)
     host = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='listing_host')
@@ -53,13 +39,28 @@ class Listing(models.Model):
     location = models.CharField(max_length=100)
     price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
     is_available = models.BooleanField(default=True)
-    watchlist = models.ManyToManyField(Users, null=True, blank=True, related_name='listing_watchlist')
+    watchlist = models.ManyToManyField(Users, null=True, blank=True, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.title} listed by: {self.host_id.full_name}"
 
+    @property
+    def formatted_created_at(self):
+        return self.created_at.strftime("%b %d, %Y, %H:%M %p").replace("AM", "a.m.").replace("PM", "p.m.")
+
+
+class PropertyFeature(models.Model):
+    amenity_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, null=False)
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='amenity')
+    name= models.CharField(max_length=10, null=False, choices=AMENITIES.choices)
+    qty = models.IntegerField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
+    
     @property
     def formatted_created_at(self):
         return self.created_at.strftime("%b %d, %Y, %H:%M %p").replace("AM", "a.m.").replace("PM", "p.m.")
