@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from rest_framework import serializers
 from .models import Users, Listing, PropertyFeature, Booking, Review
 
