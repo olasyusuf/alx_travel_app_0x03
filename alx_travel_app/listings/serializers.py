@@ -10,20 +10,17 @@ class UserSerializer(serializers.ModelSerializer):
     Serializer for the custom Users model.
     Handles user data representation, including custom properties.
     """
-    # Expose the full_name property from the model
     full_name = serializers.ReadOnlyField()
-    # Expose the formatted_created_at property from the model
     formatted_created_at = serializers.ReadOnlyField()
 
     class Meta:
         model = Users
-        # Explicitly list fields for clarity and security (excluding password on read)
         fields = [
             'user_id', 'username', 'email', 'first_name', 'last_name',
             'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at'
         ]
         read_only_fields = ['user_id', 'created_at', 'full_name', 'formatted_created_at']
-        # Make password write-only for creation/update, but not readable
+        
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -61,9 +58,9 @@ class PropertyFeatureSerializer(serializers.ModelSerializer):
             'formatted_created_at'
         ]
         read_only_fields = ['amenity_id', 'created_at', 'formatted_created_at']
-        # 'listing' needs to be writable as a PrimaryKeyRelatedField for creation
+        
         extra_kwargs = {
-            'listing': {'write_only': True} # This assumes listing ID is provided on creation
+            'listing': {'write_only': True}
         }
 
 
@@ -87,10 +84,10 @@ class ReviewSerializer(serializers.ModelSerializer):
             'review_id', 'created_at', 'reviewer_full_name',
             'listing_title', 'formatted_created_at'
         ]
-        # 'listing' and 'reviewer' need to be writable as PrimaryKeyRelatedFields for creation
+        
         extra_kwargs = {
             'listing': {'write_only': True},
-            'reviewer': {'write_only': True} # This assumes reviewer ID is provided or set by view
+            'reviewer': {'write_only': True} 
         }
 
     def validate_rating(self, value):
@@ -110,12 +107,12 @@ class ListingSerializer(serializers.ModelSerializer):
     """
     # Nested serializers for read-only representation
     host = UserSerializer(read_only=True)
-    amenity = PropertyFeatureSerializer(many=True, read_only=True) # Corrected related_name to 'amenity'
+    amenity = PropertyFeatureSerializer(many=True, read_only=True) 
     reviews = ReviewSerializer(many=True, read_only=True)
     watchlist = UserSerializer(many=True, read_only=True)
 
     # Custom calculated fields using SerializerMethodField
-    formatted_created_at = serializers.ReadOnlyField() # Direct use of model property
+    formatted_created_at = serializers.ReadOnlyField() 
     features = serializers.SerializerMethodField()
     interested_clients = serializers.SerializerMethodField()
     average_rating = serializers.SerializerMethodField()
@@ -125,7 +122,7 @@ class ListingSerializer(serializers.ModelSerializer):
         fields = [
             'listing_id', 'host', 'title', 'description', 'location',
             'price_per_night', 'is_available', 'watchlist', 'created_at',
-            'updated_at', 'amenity', 'reviews', # 'amenity' is the correct related_name
+            'updated_at', 'amenity', 'reviews', 
             'formatted_created_at', 'features', 'interested_clients', 'average_rating'
         ]
         read_only_fields = [
@@ -133,15 +130,12 @@ class ListingSerializer(serializers.ModelSerializer):
             'reviews', 'watchlist', 'formatted_created_at', 'features',
             'interested_clients', 'average_rating'
         ]
-        # If 'host' needs to be set by ID on creation, you'd add:
-        # extra_kwargs = {'host': {'write_only': True, 'required': True}}
-        # But typically, host is set by request.user in the view, so read_only is fine.
+    
 
     def get_features(self, obj):
         """
         Returns a list of amenity names associated with the listing.
         """
-        # Ensure 'amenity' is the correct related_name on Listing model
         return [amenity.name for amenity in obj.amenity.all()]
 
     def get_interested_clients(self, obj):
@@ -167,16 +161,11 @@ class BookingSerializer(serializers.ModelSerializer):
     Handles booking data, including date validation and nested listing/guest info.
     """
     # Nested serializers for read-only representation
-    listing_detail = ListingSerializer(source='listing', read_only=True) # Use a different name to avoid conflict
-    guest_detail = UserSerializer(source='guest', read_only=True) # Use a different name
+    listing_detail = ListingSerializer(source='listing', read_only=True) 
+    guest_detail = UserSerializer(source='guest', read_only=True) 
 
     formatted_created_at = serializers.ReadOnlyField()
-
-    # Writable fields for creating/updating a booking
     listing = serializers.PrimaryKeyRelatedField(queryset=Listing.objects.all())
-    # 'guest' is typically set by the view to the authenticated user, so it can be read-only
-    # or a PrimaryKeyRelatedField if manually provided. For this example, we'll assume
-    # the view sets the guest.
 
     class Meta:
         model = Booking
@@ -185,9 +174,10 @@ class BookingSerializer(serializers.ModelSerializer):
             'total_price', 'status', 'created_at', 'formatted_created_at',
             'listing_detail', 'guest_detail' # Include nested details for read
         ]
-        read_only_fields = ['booking_id', 'guest', 'created_at', 'formatted_created_at', 'total_price', 'status']
-        # 'guest' is read-only here because it will be set by the view (request.user)
-        # 'total_price' and 'status' might be calculated/set by logic, not direct input.
+        read_only_fields = [
+            'booking_id', 'guest', 'created_at', 
+            'formatted_created_at', 'total_price', 'status'
+        ]
 
     def validate(self, data):
         """
@@ -201,7 +191,6 @@ class BookingSerializer(serializers.ModelSerializer):
         """
         Custom create method to potentially calculate total_price or set initial status.
         """
-        # Example: Calculate total_price based on listing price and duration
         listing = validated_data['listing']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
@@ -212,6 +201,5 @@ class BookingSerializer(serializers.ModelSerializer):
 
         calculated_total_price = Decimal(duration_days) * listing.price_per_night
         validated_data['total_price'] = calculated_total_price
-        # Status defaults to PENDING in the model, no need to set here unless overriding
-
+        
         return super().create(validated_data)
