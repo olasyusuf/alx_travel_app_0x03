@@ -6,17 +6,13 @@ from .models import Users, Listing, PropertyFeature, Booking, Review
 
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(source='user_id', read_only=True)  # Expose user_id as id
     formatted_created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Users
-        fields = [
-            'id', 'email', 'username', 'first_name', 'last_name',
-            'phone_number', 'role', 'created_at', 'formatted_created_at'
-        ]
+        fields = '__all__'
         
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['user_id', 'created_at']
         
     def get_formatted_created_at(self, obj):
         return obj.formatted_created_at
@@ -24,17 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 # PropertyFeature Serializer
 class PropertyFeatureSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(source='amenity_id', read_only=True)
     formatted_created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = PropertyFeature
-        fields = [
-            'id', 'listing', 'name', 
-            'qty', 'created_at', 'formatted_created_at'
-        ]
+        fields = '__all__'
         
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['amenity_id', 'created_at']
         
     def get_formatted_created_at(self, obj):
         return obj.formatted_created_at
@@ -43,17 +35,14 @@ class PropertyFeatureSerializer(serializers.ModelSerializer):
 # Review Serializer
 class ReviewSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source='review_id', read_only=True)
-    comment = serializers.CharField(max_length=500)
+    # comment = serializers.CharField(max_length=500)
     formatted_created_at = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = [
-            'id', 'listing', 'reviewer', 
-            'rating', 'comment', 'created_at', 'formatted_created_at'
-        ]
+        fields = '__all__'
         
-        read_only_fields = ['id', 'created_at']
+        read_only_fields = ['review_id', 'created_at']
         
     def get_formatted_created_at(self, obj):
         return obj.formatted_created_at
@@ -66,7 +55,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # Listing Serializer
 class ListingSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(source='listing_id', read_only=True)
     host = UserSerializer(read_only=True)
     amenities = PropertyFeatureSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
@@ -78,10 +66,7 @@ class ListingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Listing
-        fields = [
-            'id', 'host', 'name', 'description', 'location', 'price_per_night', 
-            'watchlist', 'is_available', 'created_at', 'updated_at', 'formatted_created_at'
-        ]
+        fields = '__all__'
         
         read_only_fields = ['id', 'host', 'created_at', 'updated_at']
         
@@ -110,10 +95,7 @@ class BookingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = [
-            'id', 'listing', 'guest', 'start_date', 'end_date',
-            'total_price', 'status', 'created_at', 'formatted_created_at'
-        ]
+        fields = '__all__'
         
         read_only_fields = ['id', 'guest', 'created_at']
 
