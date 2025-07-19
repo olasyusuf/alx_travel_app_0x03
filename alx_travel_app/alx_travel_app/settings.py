@@ -26,7 +26,7 @@ env = environ.Env(
     )
 
 # Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '..\_trvl_app.env'))
+environ.Env.read_env(os.path.join(BASE_DIR, '..\_msg_app.env'))
 
 
 # Quick-start development settings - unsuitable for production
@@ -44,16 +44,16 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 # Application definition
 
 INSTALLED_APPS = [
-    'listings',
-    'rest_framework', 
-    'drf_spectacular',
-    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework', 
+    'drf_spectacular',
+    "corsheaders",
+    'listings',
 ]
 
 REST_FRAMEWORK = {
@@ -140,6 +140,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'listings.Users'
 
 # CORS
 # CORS_ALLOW_ALL_ORIGINS = True

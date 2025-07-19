@@ -1,5 +1,5 @@
 from django.db import models
-from .enums import UserRole, BookingStatus, AMENITIES 
+from .enums import Roles, BookingStatus, AMENITIES 
 from django.db.models import CheckConstraint, Q, F
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -7,8 +7,8 @@ import uuid
 
 class Users(AbstractUser):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False, null=False)
-    role = models.CharField(max_length=10, null=False, choices=UserRole.choices, default=UserRole.GUEST)
-    first_name = models.CharField(max_length=150, blank=True)  
+    role = models.CharField(max_length=10, null=False, choices=Roles.choices, default=Roles.GUEST)
+    first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)  
     email = models.EmailField(unique=True, null=False)
     password = models.CharField(max_length=128, null=False)  
@@ -39,7 +39,7 @@ class Listing(models.Model):
     location = models.CharField(max_length=100)
     price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
     is_available = models.BooleanField(default=True)
-    watchlist = models.ManyToManyField(Users, null=True, blank=True, related_name='likes')
+    watchlist = models.ManyToManyField(Users, blank=True, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
