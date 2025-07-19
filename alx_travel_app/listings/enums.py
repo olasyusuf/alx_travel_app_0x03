@@ -12,7 +12,7 @@ class BookingStatus(models.TextChoices):
     
 class AMENITIES(models.TextChoices):
     WI_FI = 'WI-FI', 'wi-fi'
-    POOL = 'POOL', 'Pool'
-    PETS = 'PETS', 'Pets' 
+    POOL = 'POOL', 'Swimming Pool'
+    PETS = 'PETS', 'Pets Allowed' 
     GYM = "GYM", "Gym" 
     PARKING = 'PARKING', 'Parking'
