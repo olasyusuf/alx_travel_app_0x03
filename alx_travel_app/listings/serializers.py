@@ -15,7 +15,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        fields = '__all__'
+        fields = [
+            'user_id', 'username', 'email', 'first_name', 'last_name',
+            'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at',
+            'listing_host', 'likes', 'anemities', 'customer', 'customer_review'
+        ]
         read_only_fields = ['user_id', 'created_at', 'full_name', 'formatted_created_at']
         
         extra_kwargs = {
@@ -50,7 +54,10 @@ class PropertyFeatureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PropertyFeature
-        fields = '__all__'
+        fields = [
+            'amenity_id', 'listing', 'name', 'qty', 
+            'created_at', 'formatted_created_at', 'amenities'
+        ]
         read_only_fields = ['amenity_id', 'created_at', 'formatted_created_at']
         
         extra_kwargs = {
@@ -69,7 +76,11 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = [
+            'review_id', 'listing', 'reviewer', 'rating', 'comment',
+            'created_at', 'reviewer_full_name', 'listing_title',
+            'formatted_created_at'
+        ]
         read_only_fields = [
             'review_id', 'created_at', 'reviewer_full_name',
             'listing_title', 'formatted_created_at'
@@ -109,7 +120,12 @@ class ListingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Listing
-        fields = '__all__'
+        fields = [
+            'listing_id', 'host', 'title', 'description', 'location',
+            'price_per_night', 'is_available', 'watchlist', 'created_at',
+            'updated_at', 'amenity', 'reviews', 'bookings'
+            'formatted_created_at', 'features', 'interested_clients', 'average_rating'
+        ]
         read_only_fields = [
             'listing_id', 'host', 'created_at', 'updated_at', 'amenity',
             'reviews', 'watchlist', 'formatted_created_at', 'features',
@@ -154,7 +170,11 @@ class BookingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Booking
-        fields = '__all__'
+        fields = [
+            'booking_id', 'listing', 'guest', 'start_date', 'end_date',
+            'total_price', 'status', 'created_at', 'formatted_created_at',
+            'listing_detail', 'guest_detail' # Include nested details for read
+        ]
         read_only_fields = [
             'booking_id', 'guest', 'created_at', 
             'formatted_created_at', 'total_price', 'status'
