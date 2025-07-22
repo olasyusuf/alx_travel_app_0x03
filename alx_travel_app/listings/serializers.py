@@ -17,7 +17,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = Users
         fields = [
             'user_id', 'username', 'email', 'first_name', 'last_name',
-            'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at'
+            'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at',
+            'listing_host', 'likes', 'anemities', 'customer', 'customer_review'
         ]
         read_only_fields = ['user_id', 'created_at', 'full_name', 'formatted_created_at']
         
@@ -54,8 +55,8 @@ class PropertyFeatureSerializer(serializers.ModelSerializer):
     class Meta:
         model = PropertyFeature
         fields = [
-            'amenity_id', 'listing', 'name', 'qty', 'created_at',
-            'formatted_created_at'
+            'amenity_id', 'listing', 'name', 'qty', 
+            'created_at', 'formatted_created_at', 'amenities'
         ]
         read_only_fields = ['amenity_id', 'created_at', 'formatted_created_at']
         
@@ -122,7 +123,7 @@ class ListingSerializer(serializers.ModelSerializer):
         fields = [
             'listing_id', 'host', 'title', 'description', 'location',
             'price_per_night', 'is_available', 'watchlist', 'created_at',
-            'updated_at', 'amenity', 'reviews', 
+            'updated_at', 'amenity', 'reviews', 'bookings'
             'formatted_created_at', 'features', 'interested_clients', 'average_rating'
         ]
         read_only_fields = [
