@@ -63,6 +63,7 @@ Method	Endpoint	Description
 - `GET	/api/listings/`	List all listings
 - `GET	/api/listings/{listing_id}`	Get a listing with the listing_id
 - `POST	/api/listings/`	Create new listing
+- `PUT /api/listings/{listing_id}` Update a Listing
 - `DEL /api/listings/{listing_id}` Delete a Listing
 - `GET	/api/bookings/`	List all bookings
 - `POST	/api/bookings/`	Create new booking
