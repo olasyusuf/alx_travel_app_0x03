@@ -30,7 +30,8 @@ class Command(BaseCommand):
                     defaults={'first_name': 'Admin', 'last_name': 'Admin', 'role': Roles.ADMIN}
                 )
                 if admin_created:
-                    admin.set_password(hashlib.sha256("admin123".encode('utf-8')).hexdigest()) 
+                    admin.set_password("admin123") 
+                    admin.is_staff = 1
                     admin.save()
                     self.stdout.write(self.style.SUCCESS(f'Created admin user: {admin.username}'))
                     
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                     }
                 )
                 if host1_created:
-                    host1.set_password(hashlib.sha256("1mm@tu@l".encode('utf-8')).hexdigest()) 
+                    host1.set_password("1mm@tu@l") 
                     host1.save()
                     self.stdout.write(self.style.SUCCESS(f'Created host 1 user: {host1.username}'))
 
@@ -57,7 +58,7 @@ class Command(BaseCommand):
                         }
                 )
                 if host2_created:
-                    host2.set_password(hashlib.sha256("n@g0d3".encode('utf-8')).hexdigest())
+                    host2.set_password("n@g0d3")
                     host2.save()
                     self.stdout.write(self.style.SUCCESS(f'Created host 2 user: {host2.username}'))
 

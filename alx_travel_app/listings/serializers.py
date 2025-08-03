@@ -3,6 +3,7 @@
 from decimal import Decimal
 from rest_framework import serializers
 from .models import Users, Listing, PropertyFeature, Booking, Review
+from .enums import Roles, BookingStatus, AMENITIES
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -17,26 +18,19 @@ class UserSerializer(serializers.ModelSerializer):
         model = Users
         fields = [
             'user_id', 'username', 'email', 'first_name', 'last_name',
-            'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at',
-            'listing_host', 'likes', 'anemities', 'customer', 'customer_review'
+            'phone_number', 'role', 'created_at', 'full_name', 'formatted_created_at'
         ]
-        read_only_fields = ['user_id', 'created_at', 'full_name', 'formatted_created_at']
+        read_only_fields = ['user_id', 'created_at', 'full_name', 'formatted_created_at'] # Already covered by ReadOnlyField or model settings
         
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
     def create(self, validated_data):
-        """
-        Custom create method to handle password hashing for new user creation.
-        """
         user = Users.objects.create_user(**validated_data)
         return user
 
     def update(self, instance, validated_data):
-        """
-        Custom update method to handle password hashing if password is updated.
-        """
         password = validated_data.pop('password', None)
         instance = super().update(instance, validated_data)
         if password:
@@ -56,7 +50,7 @@ class PropertyFeatureSerializer(serializers.ModelSerializer):
         model = PropertyFeature
         fields = [
             'amenity_id', 'listing', 'name', 'qty', 
-            'created_at', 'formatted_created_at', 'amenities'
+            'created_at', 'formatted_created_at'
         ]
         read_only_fields = ['amenity_id', 'created_at', 'formatted_created_at']
         
@@ -106,13 +100,11 @@ class ListingSerializer(serializers.ModelSerializer):
     Provides a comprehensive view of a listing, including nested related data
     and calculated properties.
     """
-    # Nested serializers for read-only representation
     host = UserSerializer(read_only=True)
     amenity = PropertyFeatureSerializer(many=True, read_only=True) 
     reviews = ReviewSerializer(many=True, read_only=True)
     watchlist = UserSerializer(many=True, read_only=True)
 
-    # Custom calculated fields using SerializerMethodField
     formatted_created_at = serializers.ReadOnlyField() 
     features = serializers.SerializerMethodField()
     interested_clients = serializers.SerializerMethodField()
@@ -123,13 +115,11 @@ class ListingSerializer(serializers.ModelSerializer):
         fields = [
             'listing_id', 'host', 'title', 'description', 'location',
             'price_per_night', 'is_available', 'watchlist', 'created_at',
-            'updated_at', 'amenity', 'reviews', 'bookings'
+            'updated_at', 'amenity', 'reviews', 'bookings', # Fixed comma here
             'formatted_created_at', 'features', 'interested_clients', 'average_rating'
         ]
         read_only_fields = [
-            'listing_id', 'host', 'created_at', 'updated_at', 'amenity',
-            'reviews', 'watchlist', 'formatted_created_at', 'features',
-            'interested_clients', 'average_rating'
+            'listing_id', 'host', 'created_at', 'updated_at', 
         ]
     
 
@@ -173,34 +163,57 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = [
             'booking_id', 'listing', 'guest', 'start_date', 'end_date',
             'total_price', 'status', 'created_at', 'formatted_created_at',
-            'listing_detail', 'guest_detail' # Include nested details for read
+            'listing_detail', 'guest_detail' 
         ]
         read_only_fields = [
-            'booking_id', 'guest', 'created_at', 
-            'formatted_created_at', 'total_price', 'status'
+            'booking_id', 'created_at', 'formatted_created_at', 
+            'total_price', 'status' 
         ]
 
     def validate(self, data):
         """
         Validates that the end_date is after the start_date.
+        Also checks for existing bookings for the listing.
         """
-        if data['end_date'] <= data['start_date']:
+        start_date = data.get('start_date')
+        end_date = data.get('end_date')
+        listing = data.get('listing')
+
+        if end_date <= start_date:
             raise serializers.ValidationError("End date must be after start date.")
+        
+        # Check for overlapping bookings
+        # This is a critical validation step for booking systems
+        if Booking.objects.filter(
+            listing=listing,
+            start_date__lt=end_date,  # existing booking starts before new one ends
+            end_date__gt=start_date,   # existing booking ends after new one starts
+            status__in=['pending', 'confirmed'] # Consider only relevant statuses
+        ).exists():
+            raise serializers.ValidationError("This listing is already booked for part or all of the selected dates.")
+
         return data
 
     def create(self, validated_data):
         """
-        Custom create method to potentially calculate total_price or set initial status.
+        Custom create method to calculate total_price and set initial status.
         """
         listing = validated_data['listing']
         start_date = validated_data['start_date']
         end_date = validated_data['end_date']
 
         duration_days = (end_date - start_date).days
-        if duration_days <= 0: # Should be caught by validate, but good to double check
+        
+        # The `validate` method should ideally catch `duration_days <= 0`
+        # but this check serves as a safeguard.
+        if duration_days <= 0: 
             raise serializers.ValidationError("Booking duration must be at least one day.")
 
         calculated_total_price = Decimal(duration_days) * listing.price_per_night
         validated_data['total_price'] = calculated_total_price
         
+        # Set initial status, if not already provided or to override client input
+        if 'status' not in validated_data:
+            validated_data['status'] = BookingStatus.PENDING # Ensure this is from your enums
+
         return super().create(validated_data)
