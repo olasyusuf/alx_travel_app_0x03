@@ -524,6 +524,126 @@
 							"body": null
 						}
 					]
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "lifeisshort",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "1mm@tu@l",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"listing_id\": \"a6bda4f5-ee94-4d50-bded-d45766e90c57\",\r\n    \"host\": {\r\n        \"user_id\": \"aa3a1b5a-1c66-4a19-873f-67b9fa976ed7\",\r\n        \"username\": \"lifeisshort\",\r\n        \"email\": \"lifeisshort@gmail.com\",\r\n        \"first_name\": \"Samuel\",\r\n        \"last_name\": \"John\",\r\n        \"phone_number\": \"2348216723456\",\r\n        \"role\": \"HOST\",\r\n        \"created_at\": \"2025-08-03T15:33:05.859645Z\",\r\n        \"full_name\": \"Samuel John\",\r\n        \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n    },\r\n    \"title\": \"Paradise is not Far\",\r\n    \"description\": \"Tallest white building on the street.\",\r\n    \"location\": \"block 2A, Dimple Close, Ikoyi, Lagos\",\r\n    \"price_per_night\": \"451.00\",\r\n    \"is_available\": true,\r\n    \"watchlist\": [\r\n        {\r\n            \"user_id\": \"b869dce6-d6ae-41b9-84e1-6b54603f62e1\",\r\n            \"username\": \"akpan_dan\",\r\n            \"email\": \"akpan_dan@gmail.com\",\r\n            \"first_name\": \"Dan\",\r\n            \"last_name\": \"Akpan\",\r\n            \"phone_number\": null,\r\n            \"role\": \"GUEST\",\r\n            \"created_at\": \"2025-08-03T15:33:07.718509Z\",\r\n            \"full_name\": \"Dan Akpan\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"user_id\": \"f81ee73e-54de-4d46-88b3-457b285ab9ec\",\r\n            \"username\": \"abu_yinuz\",\r\n            \"email\": \"abu_yinuz@gmail.com\",\r\n            \"first_name\": \"Abubakar\",\r\n            \"last_name\": \"Yinuz\",\r\n            \"phone_number\": null,\r\n            \"role\": \"GUEST\",\r\n            \"created_at\": \"2025-08-03T15:33:07.152565Z\",\r\n            \"full_name\": \"Abubakar Yinuz\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        }\r\n    ],\r\n    \"created_at\": \"2025-08-03T15:33:08.890734Z\",\r\n    \"updated_at\": \"2025-08-03T15:33:08.890734Z\",\r\n    \"amenity\": [\r\n        {\r\n            \"amenity_id\": \"58e3507a-069f-41fe-af12-2ad67739849a\",\r\n            \"name\": \"WI-FI\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.891955Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"amenity_id\": \"2e97d2a7-1adb-4fbc-9b56-7fc31b7f5244\",\r\n            \"name\": \"POOL\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.892965Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"amenity_id\": \"6c4b3650-2772-453e-81ed-210c065c86df\",\r\n            \"name\": \"PETS\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.893962Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        }\r\n    ],\r\n    \"reviews\": [],\r\n    \"bookings\": [\r\n        \"4b4e6340-8551-4e24-9882-6c9dfc3e262e\"\r\n    ],\r\n    \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\",\r\n    \"features\": [\r\n        \"WI-FI\",\r\n        \"POOL\",\r\n        \"PETS\"\r\n    ],\r\n    \"interested_clients\": [\r\n        \"Dan Akpan\",\r\n        \"Abubakar Yinuz\"\r\n    ],\r\n    \"average_rating\": \"No Review\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/listings/a6bda4f5-ee94-4d50-bded-d45766e90c57/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"listings",
+								"a6bda4f5-ee94-4d50-bded-d45766e90c57",
+								""
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"listing_id\": \"a6bda4f5-ee94-4d50-bded-d45766e90c57\",\r\n    \"host\": {\r\n        \"user_id\": \"aa3a1b5a-1c66-4a19-873f-67b9fa976ed7\",\r\n        \"username\": \"lifeisshort\",\r\n        \"email\": \"lifeisshort@gmail.com\",\r\n        \"first_name\": \"Samuel\",\r\n        \"last_name\": \"John\",\r\n        \"phone_number\": \"2348216723456\",\r\n        \"role\": \"HOST\",\r\n        \"created_at\": \"2025-08-03T15:33:05.859645Z\",\r\n        \"full_name\": \"Samuel John\",\r\n        \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n    },\r\n    \"title\": \"Paradise is not Far\",\r\n    \"description\": \"Tallest white building on the street.\",\r\n    \"location\": \"block 2A, Dimple Close, Ikoyi, Lagos\",\r\n    \"price_per_night\": \"451.00\",\r\n    \"is_available\": true,\r\n    \"watchlist\": [\r\n        {\r\n            \"user_id\": \"b869dce6-d6ae-41b9-84e1-6b54603f62e1\",\r\n            \"username\": \"akpan_dan\",\r\n            \"email\": \"akpan_dan@gmail.com\",\r\n            \"first_name\": \"Dan\",\r\n            \"last_name\": \"Akpan\",\r\n            \"phone_number\": null,\r\n            \"role\": \"GUEST\",\r\n            \"created_at\": \"2025-08-03T15:33:07.718509Z\",\r\n            \"full_name\": \"Dan Akpan\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"user_id\": \"f81ee73e-54de-4d46-88b3-457b285ab9ec\",\r\n            \"username\": \"abu_yinuz\",\r\n            \"email\": \"abu_yinuz@gmail.com\",\r\n            \"first_name\": \"Abubakar\",\r\n            \"last_name\": \"Yinuz\",\r\n            \"phone_number\": null,\r\n            \"role\": \"GUEST\",\r\n            \"created_at\": \"2025-08-03T15:33:07.152565Z\",\r\n            \"full_name\": \"Abubakar Yinuz\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        }\r\n    ],\r\n    \"created_at\": \"2025-08-03T15:33:08.890734Z\",\r\n    \"updated_at\": \"2025-08-03T15:33:08.890734Z\",\r\n    \"amenity\": [\r\n        {\r\n            \"amenity_id\": \"58e3507a-069f-41fe-af12-2ad67739849a\",\r\n            \"name\": \"WI-FI\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.891955Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"amenity_id\": \"2e97d2a7-1adb-4fbc-9b56-7fc31b7f5244\",\r\n            \"name\": \"POOL\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.892965Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        },\r\n        {\r\n            \"amenity_id\": \"6c4b3650-2772-453e-81ed-210c065c86df\",\r\n            \"name\": \"PETS\",\r\n            \"qty\": 1,\r\n            \"created_at\": \"2025-08-03T15:33:08.893962Z\",\r\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\r\n        }\r\n    ],\r\n    \"reviews\": [],\r\n    \"bookings\": [\r\n        \"4b4e6340-8551-4e24-9882-6c9dfc3e262e\"\r\n    ],\r\n    \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\",\r\n    \"features\": [\r\n        \"WI-FI\",\r\n        \"POOL\",\r\n        \"PETS\"\r\n    ],\r\n    \"interested_clients\": [\r\n        \"Dan Akpan\",\r\n        \"Abubakar Yinuz\"\r\n    ],\r\n    \"average_rating\": \"No Review\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/api/listings/a6bda4f5-ee94-4d50-bded-d45766e90c57/",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"listings",
+										"a6bda4f5-ee94-4d50-bded-d45766e90c57",
+										""
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": null,
+							"header": [
+								{
+									"key": "Date",
+									"value": "Sun, 03 Aug 2025 19:33:25 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.12.2"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Vary",
+									"value": "Accept, Cookie, origin"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, PUT, PATCH, DELETE, HEAD, OPTIONS"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2005"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"listing_id\": \"a6bda4f5-ee94-4d50-bded-d45766e90c57\",\n    \"host\": {\n        \"user_id\": \"aa3a1b5a-1c66-4a19-873f-67b9fa976ed7\",\n        \"username\": \"lifeisshort\",\n        \"email\": \"lifeisshort@gmail.com\",\n        \"first_name\": \"Samuel\",\n        \"last_name\": \"John\",\n        \"phone_number\": \"2348216723456\",\n        \"role\": \"HOST\",\n        \"created_at\": \"2025-08-03T15:33:05.859645Z\",\n        \"full_name\": \"Samuel John\",\n        \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n    },\n    \"title\": \"Paradise is not Far\",\n    \"description\": \"Tallest white building on the street.\",\n    \"location\": \"block 2A, Dimple Close, Ikoyi, Lagos\",\n    \"price_per_night\": \"451.00\",\n    \"is_available\": true,\n    \"watchlist\": [\n        {\n            \"user_id\": \"b869dce6-d6ae-41b9-84e1-6b54603f62e1\",\n            \"username\": \"akpan_dan\",\n            \"email\": \"akpan_dan@gmail.com\",\n            \"first_name\": \"Dan\",\n            \"last_name\": \"Akpan\",\n            \"phone_number\": null,\n            \"role\": \"GUEST\",\n            \"created_at\": \"2025-08-03T15:33:07.718509Z\",\n            \"full_name\": \"Dan Akpan\",\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n        },\n        {\n            \"user_id\": \"f81ee73e-54de-4d46-88b3-457b285ab9ec\",\n            \"username\": \"abu_yinuz\",\n            \"email\": \"abu_yinuz@gmail.com\",\n            \"first_name\": \"Abubakar\",\n            \"last_name\": \"Yinuz\",\n            \"phone_number\": null,\n            \"role\": \"GUEST\",\n            \"created_at\": \"2025-08-03T15:33:07.152565Z\",\n            \"full_name\": \"Abubakar Yinuz\",\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n        }\n    ],\n    \"created_at\": \"2025-08-03T15:33:08.890734Z\",\n    \"updated_at\": \"2025-08-03T19:33:25.924801Z\",\n    \"amenity\": [\n        {\n            \"amenity_id\": \"58e3507a-069f-41fe-af12-2ad67739849a\",\n            \"name\": \"WI-FI\",\n            \"qty\": 1,\n            \"created_at\": \"2025-08-03T15:33:08.891955Z\",\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n        },\n        {\n            \"amenity_id\": \"2e97d2a7-1adb-4fbc-9b56-7fc31b7f5244\",\n            \"name\": \"POOL\",\n            \"qty\": 1,\n            \"created_at\": \"2025-08-03T15:33:08.892965Z\",\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n        },\n        {\n            \"amenity_id\": \"6c4b3650-2772-453e-81ed-210c065c86df\",\n            \"name\": \"PETS\",\n            \"qty\": 1,\n            \"created_at\": \"2025-08-03T15:33:08.893962Z\",\n            \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\"\n        }\n    ],\n    \"reviews\": [],\n    \"bookings\": [\n        \"4b4e6340-8551-4e24-9882-6c9dfc3e262e\"\n    ],\n    \"formatted_created_at\": \"Aug 03, 2025, 15:33 p.m.\",\n    \"features\": [\n        \"WI-FI\",\n        \"POOL\",\n        \"PETS\"\n    ],\n    \"interested_clients\": [\n        \"Dan Akpan\",\n        \"Abubakar Yinuz\"\n    ],\n    \"average_rating\": \"No Review\"\n}"
+						}
+					]
 				}
 			]
 		},
