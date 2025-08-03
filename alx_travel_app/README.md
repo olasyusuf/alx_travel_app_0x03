@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <h1><b>ALX Travel App - Milestone: Models, Serializers, and Seeder</b></h1>
+  <h1><b>ALX Travel App - Milestone 3: API Endpoints</b></h1>
 </div>
 <br />
 
@@ -9,8 +9,8 @@
 
 - [Table of Contents](#table-of-contents)
   - [Objectives](#objectives)
-  - [Models Overview](#models-overview)
-  - [Seeder Command](#seeder-command)
+  - [API Endpoints](#api-endpoints)
+  - [API Documentation](#api-documentation)
 
 
 <br />
@@ -19,39 +19,68 @@
 
 ### Objectives
 
-This document details the design and implementation of Travel App database models, the creation of serializers for REST API data representation, and the implementation of a management command to seed the database.
+This document details the design and implementation of Travel App API views to manage listings and bookings, and ensure the endpoints are documented with Swagger.
 
-- Create Models
-- Set Up Serializers
-- Implement Seeders
-- Run Seed Command
-
+- Create ViewSets
+- Configure URLs
+- Test Endpoints
 
 <br />
+
+<div align="right">
+
+  [ [↑ to top ↑](#table-of-contents) ]
+</div>
 
 ---
 
 This milestone implements:
 
-- **Users, Listing, Booking, and Review models** with appropriate relationships and fields.
-- **Serializers** for Listing and Booking to support API endpoints.
-- **Custom seeder command** to populate the database with sample listings.
 
-### Models Overview
+- CRUD operations for **Listings** and **Bookings**
+- RESTful API endpoints using Django REST Framework
+- Auto-generated API docs with Swagger (drf-yasg)
+- JSON responses with proper validation
+- Modular code with ViewSets and Routers
 
-- **Users**: `role`, `first_name`, `last_name`, `password`, `email`, `phone_number`, `created_at`
-- **Listing**: `title`, `description`, `location`, `price_per_night`, `is_available`, `watchlist`, `created_at`, `updated_at`
-- **PropertyFeature**: ForeignKey to `Listing`, `name` of feature, `qty`, `created_at`
-- **Booking**: ForeignKey to `Listing` &`Users`, `start_date`, `end_date`, `total_price`, `status`, 
-- **Review**: ForeignKey to `Listing` & `Users`, `rating`, `comment`
 
-### Seeder Command
+<br />
 
-To populate database with demo listings:
-```
-python manage.py seed
+<div align="right">
 
-```
+  [ [↑ to top ↑](#table-of-contents) ]
+</div>
+
+---
+
+### API Endpoints
+
+All API endpoints are accessible under:
+
+http://127.0.0.1:8000/api/
+
+Method	Endpoint	Description
+- `GET	/api/listings/`	List all listings
+- `GET	/api/listings/{listing_id}`	Get a listing with the listing_id
+- `POST	/api/listings/`	Create new listing
+- `DEL /api/listings/{listing_id}` Delete a Listing
+- `GET	/api/bookings/`	List all bookings
+- `POST	/api/bookings/`	Create new booking
+
+<br />
+
+<div align="right">
+
+  [ [↑ to top ↑](#table-of-contents) ]
+</div>
+
+---
+
+### API Documentation
+
+Method	Endpoint	Description
+- `GET	/api/swagger/`	
+- `GET	/api/redoc/`	
 
 <br />
 
