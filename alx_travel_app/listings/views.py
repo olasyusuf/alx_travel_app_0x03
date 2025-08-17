@@ -16,6 +16,7 @@ from .serializers import (
     ReviewSerializer # Potentially useful for nested writes, though not strictly required for these viewsets
 )
 from .enums import BookingStatus # Import BookingStatus for setting default status
+from .tasks import send_booking_confirmation_email
 
 
 class ListingViewSet(viewsets.ModelViewSet):
@@ -196,7 +197,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
     # This ensures that you can't create or update payments via standard CRUD
-    http_method_names = ['get', 'head', 'options']
+    http_method_names = ['post', 'get', 'head', 'options']
 
     @action(detail=False, methods=['post'])
     def initiate(self, request):
@@ -216,7 +217,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
         try:
             # Retrieve the booking and its related details
-            booking = Booking.objects.get(id=booking_id)
+            booking = Booking.objects.get(booking_id=booking_id)
             email = request.data.get("email")
             listing = booking.listing
             guest = booking.guest
@@ -234,67 +235,74 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Prepare the payload for the Chapa API
-        # Generate transaction reference
-        tx_ref = f"booking-payment-{booking.id}-{uuid.uuid4().hex[:8]}"
-
-        # Chapa payload
-        payload = {
-            "amount": str(booking.total_price),
-            "currency": "ETB",  # Adjust currency as needed
-            "email": email,
-            "first_name": guest.first_name,
-            "last_name": guest.last_name,
-            "tx_ref": tx_ref,
-            "callback_url": f"{request.build_absolute_uri('/api/payments/verify/')}",
-            "return_url": f"{request.build_absolute_uri('/api/payments/success/')}",
-            "customization": {
-                "title": "Booking Payment",
-                "description": f"Payment for booking {booking.id} on {listing.title}"
-            }
-        }
-
-        # Make the POST request to the Chapa API
-        url = "https://api.chapa.co/v1/transaction/initialize"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {settings.CHAPA_SECRET_KEY}"
-        }
-
-        try:
-            response = requests.post(url, json=payload, headers=headers)
-            response_data = response.json()
-        except requests.exceptions.RequestException as e:
-            return Response(
-                {"error": f"Failed to connect to payment gateway: {str(e)}"},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE
+        # Use a database transaction to ensure atomicity
+        with transaction.atomic():
+            # Prepare the payload for the Chapa API
+            # Generate transaction reference
+            tx_ref = f"booking-payment-{booking.booking_id}-{uuid.uuid4().hex[:8]}"
+        
+            # Create a payment record in PENDING status
+            payment = Payment.objects.create(
+                booking=booking,
+                amount=booking.total_price,
+                status=Payment.Status.PENDING,
+                reference=tx_ref
             )
 
-        if response.status_code == 200 and response_data.get('status') == 'success':
-            # Store the new payment record with a 'pending' status
-            payment_data = {
-                "booking": booking.id,
-                "amount": booking.total_price,
-                "reference": tx_ref,
-                "status": Payment.Status.PENDING 
+            # Chapa payload
+            payload = {
+                "amount": str(booking.total_price),
+                "currency": "USD",  # Adjust currency as needed
+                "email": email,
+                "first_name": guest.first_name,
+                "last_name": guest.last_name,
+                "tx_ref": tx_ref,
+                "callback_url": f"{request.build_absolute_uri('/api/payments/verify/')}{payment.reference}/",
+                "return_url": f"{request.build_absolute_uri('/api/payments/success/')}",
+                "customization": {
+                    "title": "Booking Payment",
+                    "description": f"Payment for booking {booking.booking_id} on {listing.title}"
+                }
             }
-            serializer = PaymentSerializer(data=payment_data)
 
-            if serializer.is_valid():
-                serializer.save()
+            # Make the POST request to the Chapa API
+            url = "https://api.chapa.co/v1/transaction/initialize"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.CHAPA_SECRET_KEY}"
+            }
+
+            try:
+                # Make the request to Chapa
+                chapa_response = requests.post(url, json=payload, headers=headers)
+                chapa_response.raise_for_status()
+                response_data = chapa_response.json()
+                
+                if response_data.get('status') == 'success':
+                    return Response({
+                        "message": "Payment initiated successfully.",
+                        "payment_url": response_data.get('data').get('checkout_url')
+                    }, status=status.HTTP_201_CREATED)
+                else:
+                    # Chapa returned a failure message, update payment status
+                    payment.status = Payment.Status.FAILED
+                    payment.save()
+                    raise Exception(f"Chapa initiation failed: {response_data.get('message')}")
+
+            except requests.exceptions.RequestException as e:
+                # Handle network errors, update payment status
+                payment.status = Payment.Status.FAILED
+                payment.save()
                 return Response(
-                    {"message": "Payment initiated successfully.",
-                     "data": response_data.get('data')},
-                    status=status.HTTP_201_CREATED
+                    {"error": f"Failed to connect to payment gateway: {str(e)}"},
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE
                 )
-            else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Handle errors from the Chapa API
-            return Response(
-                {"error": response_data.get('message', 'Payment initiation failed.')},
-                status=response.status_code
-            )
+            except Exception as e:
+                # Handle any other errors during payment initiation
+                return Response(
+                    {"error": f"Payment initiation failed: {str(e)}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
     
     # The new custom action to verify a payment
@@ -354,6 +362,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 booking = payment.booking
                 booking.status = Booking.Status.CONFIRMED
                 booking.save()
+                
+                # Send confirmation email
+                send_booking_confirmation_email.delay(booking.booking_id)
                 
                 return Response(
                     {"message": "Payment successfully verified and records updated."},
