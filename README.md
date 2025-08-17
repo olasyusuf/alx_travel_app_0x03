@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <h1><b>ALX Travel App - Milestone 3: API Endpoints</b></h1>
+  <h1><b>ALX Travel App - Milestone 4: Payment Integration with Chapa API </b></h1>
 </div>
 <br />
 
@@ -9,8 +9,8 @@
 
 - [Table of Contents](#table-of-contents)
   - [Objectives](#objectives)
-  - [API Endpoints](#api-endpoints)
-  - [API Documentation](#api-documentation)
+  - [Key Concepts:](#key-concepts)
+  - [Tools and Libraries](#tools-and-libraries)
 
 
 <br />
@@ -19,29 +19,14 @@
 
 ### Objectives
 
-This document details the design and implementation of Travel App API views to manage listings and bookings, and ensure the endpoints are documented with Swagger.
+This document details the integration of the Chapa Payment Gateway into a Django-based travel booking application.
 
-- Create ViewSets
-- Configure URLs
-- Test Endpoints
-
-<br />
-
-<div align="right">
-
-  [ [↑ to top ↑](#table-of-contents) ]
-</div>
-
----
-
-This milestone implements:
-
-
-- CRUD operations for **Listings** and **Bookings**
-- RESTful API endpoints using Django REST Framework
-- Auto-generated API docs with Swagger (drf-yasg)
-- JSON responses with proper validation
-- Modular code with ViewSets and Routers
+- Configure and securely store API credentials for third-party payment gateways.
+- Create Django models to manage and track payment transactions.
+- Build API endpoints for payment initiation and verification.
+- Implement payment workflows integrated into a booking system.
+- Handle payment status updates and transaction logging.
+- Test payment flows using a sandbox environment.
 
 
 <br />
@@ -53,20 +38,16 @@ This milestone implements:
 
 ---
 
-### API Endpoints
+### Key Concepts:
 
-All API endpoints are accessible under:
+- **API Integration** – Connecting Django with the Chapa API for payment processing.
+- **Secure Credential Management** – Storing API keys in environment variables.
+- **Django Models** – Structuring and persisting payment transaction data.
+- **HTTP Requests** – Sending POST and GET requests to initiate and verify payments.
+- **Asynchronous Tasks** – Using Celery for sending confirmation emails.
+- **Error Handling** – Managing failed or incomplete payments gracefully.
 
-http://127.0.0.1:8000/api/
 
-Method	Endpoint	Description
-- `GET /api/listings/`	List all listings
-- `GET /api/listings/{listing_id}`	Get a listing with the listing_id
-- `POST /api/listings/`	Create new listing
-- `PUT /api/listings/{listing_id}` Update a Listing
-- `DEL /api/listings/{listing_id}` Delete a Listing
-- `GET /api/bookings/`	List all bookings
-- `POST /api/bookings/`	Create new booking
 
 <br />
 
@@ -77,11 +58,15 @@ Method	Endpoint	Description
 
 ---
 
-### API Documentation
+### Tools and Libraries
 
-Method	Endpoint	Description
-- `GET	/api/swagger/`	
-- `GET	/api/redoc/`	
+- **Django** – Backend framework for building the application.
+- **PostgreSQL** – Database for persisting bookings and payment data.
+- **Chapa API** – Payment gateway for initiating and verifying transactions.
+- **Requests** – Python library for making API calls to Chapa.
+- **Celery** – For background email sending after successful payment.
+- **dotenv** – For managing environment variables securely.
+
 
 <br />
 
@@ -90,4 +75,3 @@ Method	Endpoint	Description
   [ [↑ to top ↑](#table-of-contents) ]
 </div>
 
----
