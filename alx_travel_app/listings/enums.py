@@ -8,7 +8,8 @@ class Roles(models.TextChoices):
 class BookingStatus(models.TextChoices):
     PENDING = 'PENDING', 'Pending'
     CONFIRMED = 'CONFIRMED', 'Confirmed'
-    CANCELED = 'CANCELED', 'Canceled'    
+    CANCELED = 'CANCELED', 'Canceled' 
+    DECLINED = 'DECLINED', 'Declined'   
     
 class AMENITIES(models.TextChoices):
     WI_FI = 'WI-FI', 'wi-fi'
@@ -16,3 +17,9 @@ class AMENITIES(models.TextChoices):
     PETS = 'PETS', 'Pets Allowed' 
     GYM = "GYM", "Gym" 
     PARKING = 'PARKING', 'Parking'
+    
+class PaymentStatus(models.TextChoices):
+    PENDING = 'PENDING', 'Pending'
+    COMPLETED = 'COMPLETED', 'Completed'
+    FAILED = 'FAILED', 'Failed'
+    

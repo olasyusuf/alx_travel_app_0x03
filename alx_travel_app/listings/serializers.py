@@ -3,7 +3,7 @@
 from decimal import Decimal
 from rest_framework import serializers
 from .models import Users, Listing, PropertyFeature, Booking, Review, Payment
-from .enums import Roles, BookingStatus, AMENITIES
+from .enums import Roles, BookingStatus, AMENITIES, PaymentStatus
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -152,7 +152,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Payment
-        fields = ['trnx_id', 'booking', 'amount', 'reference', 'status', 'created_at']
+        fields = ['trnx_id', 'booking', 'amount', 'status', 'created_at', 'updated_at']
         read_only_fields = ['status', 'created_at']
 
     def validate(self, data):
@@ -190,13 +190,13 @@ class PaymentSerializer(serializers.ModelSerializer):
         payment = Payment.objects.create(
             booking=booking,
             amount=amount,
-            status=Payment.Status.COMPLETED, # Assuming the payment is successful
+            status=PaymentStatus.COMPLETED, # Assuming the payment is successful
             **validated_data
         )
 
         # Update the associated booking's status to confirmed
-        if booking.status != Booking.Status.CONFIRMED:
-            booking.status = Booking.Status.CONFIRMED
+        if booking.status != BookingStatus.CONFIRMED:
+            booking.status = BookingStatus.CONFIRMED
             booking.save()
 
         return payment

@@ -15,7 +15,7 @@ from .serializers import (
     PaymentSerializer,
     ReviewSerializer # Potentially useful for nested writes, though not strictly required for these viewsets
 )
-from .enums import BookingStatus # Import BookingStatus for setting default status
+from .enums import BookingStatus, PaymentStatus # Import BookingStatus for setting default status
 from .tasks import send_booking_confirmation_email
 
 
@@ -179,11 +179,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             return Response({'detail': 'You are not authorized to cancel this booking.'}, 
                             status=status.HTTP_403_FORBIDDEN)
 
-        if booking.status in [BookingStatus.CANCELLED, BookingStatus.COMPLETED, BookingStatus.DECLINED]:
+        if booking.status in [BookingStatus.CANCELED, BookingStatus.CONFIRMED, BookingStatus.DECLINED]:
             return Response({'detail': 'Booking cannot be cancelled from its current status.'}, 
                             status=status.HTTP_400_BAD_REQUEST)
         
-        booking.status = BookingStatus.CANCELLED
+        booking.status = BookingStatus.CANCELED
         booking.save()
         serializer = self.get_serializer(booking)
         return Response(serializer.data)
@@ -223,7 +223,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
             guest = booking.guest
 
             # Check if the booking is in a state ready for payment
-            if booking.status != Booking.Status.PENDING:
+            if booking.status != BookingStatus.PENDING:
                 return Response(
                     {"error": "This booking is not pending and cannot be paid for."},
                     status=status.HTTP_400_BAD_REQUEST
@@ -245,8 +245,8 @@ class PaymentViewSet(viewsets.ModelViewSet):
             payment = Payment.objects.create(
                 booking=booking,
                 amount=booking.total_price,
-                status=Payment.Status.PENDING,
-                reference=tx_ref
+                status=PaymentStatus.PENDING,
+                trnx_id=tx_ref
             )
 
             # Chapa payload
@@ -257,7 +257,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 "first_name": guest.first_name,
                 "last_name": guest.last_name,
                 "tx_ref": tx_ref,
-                "callback_url": f"{request.build_absolute_uri('/api/payments/verify/')}{payment.reference}/",
+                "callback_url": f"{request.build_absolute_uri('/api/payments/verify/')}{payment.trnx_id}/",
                 "customization": {
                     "title": "Booking Payment",
                     "description": f"Payment for booking {booking.booking_id} on {listing.title}"
@@ -284,13 +284,13 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     }, status=status.HTTP_201_CREATED)
                 else:
                     # Chapa returned a failure message, update payment status
-                    payment.status = Payment.Status.FAILED
+                    payment.status = PaymentStatus.FAILED
                     payment.save()
                     raise Exception(f"Chapa initiation failed: {response_data.get('message')}")
 
             except requests.exceptions.RequestException as e:
                 # Handle network errors, update payment status
-                payment.status = Payment.Status.FAILED
+                payment.status = PaymentStatus.FAILED
                 payment.save()
                 return Response(
                     {"error": f"Failed to connect to payment gateway: {str(e)}"},
@@ -354,12 +354,12 @@ class PaymentViewSet(viewsets.ModelViewSet):
         with transaction.atomic():
             if chapa_status == "success":
                 # If successful, update payment and booking statuses
-                payment.status = Payment.Status.COMPLETED
+                payment.status = PaymentStatus.COMPLETED
                 payment.save()
                 
                 # Update the associated booking
                 booking = payment.booking
-                booking.status = Booking.Status.CONFIRMED
+                booking.status = BookingStatus.CONFIRMED
                 booking.save()
                 
                 # Send confirmation email
@@ -371,7 +371,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 )
             else:
                 # If failed, update payment status and return error
-                payment.status = Payment.Status.FAILED
+                payment.status = PaymentStatus.FAILED
                 payment.save()
                 
                 return Response(

@@ -1,5 +1,5 @@
 from django.db import models
-from .enums import Roles, BookingStatus, AMENITIES 
+from .enums import Roles, BookingStatus, AMENITIES, PaymentStatus 
 from django.db.models import CheckConstraint, Q, F
 from django.contrib.auth.models import AbstractUser
 import uuid
@@ -120,18 +120,13 @@ class Payment(models.Model):
     """
     Stores payment-related information for a booking.
     """
-    PAYMENT_STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('successful', 'Successful'),
-        ('failed', 'Failed'),
-    )
     
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=PaymentStatus.choices, default='pending')
     trnx_id = models.CharField(max_length=200, unique=True, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f'Payment for Booking ID: {self.booking.id}'
+        return f'Payment for Booking ID: {self.booking.booking_id}'
