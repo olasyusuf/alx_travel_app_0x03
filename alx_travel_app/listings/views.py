@@ -258,7 +258,6 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 "last_name": guest.last_name,
                 "tx_ref": tx_ref,
                 "callback_url": f"{request.build_absolute_uri('/api/payments/verify/')}{payment.reference}/",
-                "return_url": f"{request.build_absolute_uri('/api/payments/success/')}",
                 "customization": {
                     "title": "Booking Payment",
                     "description": f"Payment for booking {booking.booking_id} on {listing.title}"
@@ -379,3 +378,14 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     {"error": f"Payment verification failed: {chapa_message}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+
+
+    @action(detail=False, methods=['get'])
+    def status(self, request, pk=None):
+        """Get current payment status"""
+        payment = self.get_object()
+        serializer = self.get_serializer(payment)
+        return Response({
+            "status": "success",
+            "data": serializer.data
+        })
