@@ -40,6 +40,9 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
+# CHAPA API keys
+CHAPA_SECRET_KEY = env('CHAPA_SECRET_KEY')
+
 
 # Application definition
 

@@ -114,3 +114,24 @@ class Review(models.Model):
     @property
     def formatted_created_at(self):
         return self.created_at.strftime("%b %d, %Y, %H:%M %p").replace("AM", "a.m.").replace("PM", "p.m.")   
+
+
+class Payment(models.Model):
+    """
+    Stores payment-related information for a booking.
+    """
+    PAYMENT_STATUS_CHOICES = (
+        ('pending', 'Pending'),
+        ('successful', 'Successful'),
+        ('failed', 'Failed'),
+    )
+    
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    trnx_id = models.CharField(max_length=200, unique=True, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Payment for Booking ID: {self.booking.id}'

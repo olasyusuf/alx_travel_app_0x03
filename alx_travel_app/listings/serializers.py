@@ -2,7 +2,7 @@
 
 from decimal import Decimal
 from rest_framework import serializers
-from .models import Users, Listing, PropertyFeature, Booking, Review
+from .models import Users, Listing, PropertyFeature, Booking, Review, Payment
 from .enums import Roles, BookingStatus, AMENITIES
 
 
@@ -146,14 +146,73 @@ class ListingSerializer(serializers.ModelSerializer):
         return round(sum([r.rating for r in reviews]) / len(reviews), 1)
 
 
+class PaymentSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Payment model with custom validation and creation logic.
+    """
+    class Meta:
+        model = Payment
+        fields = ['trnx_id', 'booking', 'amount', 'reference', 'status', 'created_at']
+        read_only_fields = ['status', 'created_at']
+
+    def validate(self, data):
+        """
+        Validates the incoming data for creating a new Payment.
+        Checks if the 'booking' exists and if the 'amount' is valid.
+        """
+        # Ensure the booking exists before trying to create a payment for it
+        try:
+            booking = Booking.objects.get(id=self.initial_data.get('booking'))
+        except Booking.DoesNotExist:
+            raise serializers.ValidationError("A payment must be associated with a valid booking.")
+
+        # Ensure a payment amount is provided and is a positive value
+        amount = data.get('amount')
+        if amount is None or amount <= 0:
+            raise serializers.ValidationError("The payment amount must be a positive value.")
+
+        # Optional: Add a check to ensure the amount matches the total_price of the booking
+        # if amount != booking.total_price:
+        #     raise serializers.ValidationError("The payment amount must match the booking's total price.")
+        
+        # Add the booking instance to validated data for the create method
+        data['booking'] = booking
+        return data
+
+    def create(self, validated_data):
+        """
+        Custom create method to handle payment creation and update the booking status.
+        """
+        booking = validated_data.pop('booking')
+        amount = validated_data.pop('amount')
+        
+        # Create the Payment instance
+        payment = Payment.objects.create(
+            booking=booking,
+            amount=amount,
+            status=Payment.Status.COMPLETED, # Assuming the payment is successful
+            **validated_data
+        )
+
+        # Update the associated booking's status to confirmed
+        if booking.status != Booking.Status.CONFIRMED:
+            booking.status = Booking.Status.CONFIRMED
+            booking.save()
+
+        return payment
+
+
 class BookingSerializer(serializers.ModelSerializer):
     """
     Serializer for the Booking model.
     Handles booking data, including date validation and nested listing/guest info.
     """
-    # Nested serializers for read-only representation
-    listing_detail = ListingSerializer(source='listing', read_only=True) 
-    guest_detail = UserSerializer(source='guest', read_only=True) 
+    # Nested serializers for read-only representation of related objects
+    listing_detail = serializers.ReadOnlyField() 
+    guest_detail = serializers.ReadOnlyField() 
+
+    # Nested serializer to display payments associated with this booking
+    payments = PaymentSerializer(many=True, read_only=True)
 
     formatted_created_at = serializers.ReadOnlyField()
     listing = serializers.PrimaryKeyRelatedField(queryset=Listing.objects.all())
@@ -163,7 +222,7 @@ class BookingSerializer(serializers.ModelSerializer):
         fields = [
             'booking_id', 'listing', 'guest', 'start_date', 'end_date',
             'total_price', 'status', 'created_at', 'formatted_created_at',
-            'listing_detail', 'guest_detail' 
+            'listing_detail', 'guest_detail', 'payments'
         ]
         read_only_fields = [
             'booking_id', 'created_at', 'formatted_created_at', 
@@ -183,12 +242,11 @@ class BookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("End date must be after start date.")
         
         # Check for overlapping bookings
-        # This is a critical validation step for booking systems
         if Booking.objects.filter(
             listing=listing,
-            start_date__lt=end_date,  # existing booking starts before new one ends
-            end_date__gt=start_date,   # existing booking ends after new one starts
-            status__in=['pending', 'confirmed'] # Consider only relevant statuses
+            start_date__lt=end_date, 
+            end_date__gt=start_date,
+            status__in=['pending', 'confirmed']
         ).exists():
             raise serializers.ValidationError("This listing is already booked for part or all of the selected dates.")
 
@@ -204,16 +262,15 @@ class BookingSerializer(serializers.ModelSerializer):
 
         duration_days = (end_date - start_date).days
         
-        # The `validate` method should ideally catch `duration_days <= 0`
-        # but this check serves as a safeguard.
         if duration_days <= 0: 
             raise serializers.ValidationError("Booking duration must be at least one day.")
 
         calculated_total_price = Decimal(duration_days) * listing.price_per_night
         validated_data['total_price'] = calculated_total_price
         
-        # Set initial status, if not already provided or to override client input
         if 'status' not in validated_data:
             validated_data['status'] = BookingStatus.PENDING # Ensure this is from your enums
 
         return super().create(validated_data)
+
+

@@ -3,12 +3,16 @@ from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models import Avg
+from django.db import transaction
+from django.conf import settings
+import requests
+import uuid
 
-from .models import Listing, Booking, Review # Import Review for average rating calculation
+from .models import Listing, Booking, Payment, Review # Import Review for average rating calculation
 from .serializers import (
     ListingSerializer,
     BookingSerializer,
+    PaymentSerializer,
     ReviewSerializer # Potentially useful for nested writes, though not strictly required for these viewsets
 )
 from .enums import BookingStatus # Import BookingStatus for setting default status
@@ -182,3 +186,4 @@ class BookingViewSet(viewsets.ModelViewSet):
         booking.save()
         serializer = self.get_serializer(booking)
         return Response(serializer.data)
+    
