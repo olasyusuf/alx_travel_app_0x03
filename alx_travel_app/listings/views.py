@@ -297,3 +297,74 @@ class PaymentViewSet(viewsets.ModelViewSet):
             )
             
     
+    # The new custom action to verify a payment
+    @action(detail=False, methods=['get'])
+    def verify(self, request, tx_ref):
+        """
+        Custom action to verify a payment with Chapa using the transaction reference.
+        
+        This endpoint is designed to be the callback URL for Chapa.
+        The URL will be: /api/payments/verify/tx_ref=booking-payment-123-xyz
+        """
+        
+        if not tx_ref:
+            return Response(
+                {"error": "Transaction reference (tx_ref) is required."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Prepare the verification request to Chapa
+        url = f"https://api.chapa.co/v1/transaction/verify/{tx_ref}"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {settings.CHAPA_SECRET_KEY}"
+        }
+        
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()  # Raise an exception for bad status codes
+            response_data = response.json()
+        except requests.exceptions.RequestException as e:
+            # Handle network errors or non-2xx status codes
+            return Response(
+                {"error": f"Failed to verify with Chapa: {str(e)}"},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+            
+        # Check the verification status
+        chapa_status = response_data.get('data', {}).get('status')
+        chapa_message = response_data.get('message', 'Verification response received.')
+
+        try:
+            payment = Payment.objects.get(trnx_id=tx_ref)
+        except Payment.DoesNotExist:
+            return Response(
+                {"error": "Payment record not found for this transaction reference."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+            
+        # Use a database transaction to ensure atomicity
+        with transaction.atomic():
+            if chapa_status == "success":
+                # If successful, update payment and booking statuses
+                payment.status = Payment.Status.COMPLETED
+                payment.save()
+                
+                # Update the associated booking
+                booking = payment.booking
+                booking.status = Booking.Status.CONFIRMED
+                booking.save()
+                
+                return Response(
+                    {"message": "Payment successfully verified and records updated."},
+                    status=status.HTTP_200_OK
+                )
+            else:
+                # If failed, update payment status and return error
+                payment.status = Payment.Status.FAILED
+                payment.save()
+                
+                return Response(
+                    {"error": f"Payment verification failed: {chapa_message}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
