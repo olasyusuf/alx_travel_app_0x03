@@ -1,6 +1,6 @@
 <div align="center">
   <br>
-  <h1><b>ALX Travel App - Milestone 4: Payment Integration with Chapa API </b></h1>
+  <h1><b>ALX Travel App - Milestone 5: Setting Up Background Jobs for Email Notifications </b></h1>
 </div>
 <br />
 
