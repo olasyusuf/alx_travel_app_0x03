@@ -120,7 +120,11 @@ class BookingViewSet(viewsets.ModelViewSet):
         """
         # The serializer handles `guest` from validated_data already if passed.
         # Ensure it's explicitly set to the requesting user for security.
-        serializer.save(guest=self.request.user, status=BookingStatus.PENDING)
+        booking = serializer.save(guest=self.request.user, status=BookingStatus.PENDING)
+        
+        # Trigger the Celery task to send the confirmation email
+        # Use .delay() to call the task asynchronously
+        send_booking_confirmation_email.delay(booking.id)
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def approve(self, request, pk=None):

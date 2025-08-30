@@ -11,6 +11,8 @@
   - [Objectives](#objectives)
   - [Key Concepts:](#key-concepts)
   - [Tools and Libraries](#tools-and-libraries)
+- [alx\_travel\_app\_0x03](#alx_travel_app_0x03)
+  - [Setup Instructions](#setup-instructions)
 
 
 <br />
@@ -66,6 +68,39 @@ This document details the integration of the Chapa Payment Gateway into a Django
 - **Requests** – Python library for making API calls to Chapa.
 - **Celery** – For background email sending after successful payment.
 - **dotenv** – For managing environment variables securely.
+
+
+<br />
+
+<div align="right">
+
+  [ [↑ to top ↑](#table-of-contents) ]
+</div>
+
+---
+
+## alx_travel_app_0x03
+
+### Setup Instructions
+
+1. Install dependencies:
+   pip install -r requirements.txt
+
+2. Start RabbitMQ:
+   sudo systemctl start rabbitmq-server
+
+3. Run migrations:
+   python manage.py migrate
+
+4. Start Celery worker:
+   celery -A alx_travel_app worker -l info
+
+5. Start Django server:
+   python manage.py runserver
+
+6. Test:
+   - Create a booking via API
+   - Check email inbox for confirmation
 
 
 <br />
