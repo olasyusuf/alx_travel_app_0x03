@@ -19,7 +19,6 @@ from celery.schedules import crontab
 # BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Initialise environment variables
 env = environ.Env(
         # Set casting and default values for specific variables
@@ -28,7 +27,6 @@ env = environ.Env(
 
 # Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, '..\_msg_app.env'))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -40,10 +38,6 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
-
-# CHAPA API keys
-CHAPA_SECRET_KEY = env('CHAPA_SECRET_KEY')
-
 
 # Application definition
 
@@ -152,6 +146,11 @@ AUTH_USER_MODEL = 'listings.Users'
 # CORS
 # CORS_ALLOW_ALL_ORIGINS = True
 
+# CHAPA API keys
+CHAPA_SECRET_KEY = env('CHAPA_SECRET_KEY')
+CHAPA_PUBLIC_KEY = env("CHAPA_PUBLIC_KEY")
+CHAPA_BASE_URL = env("CHAPA_BASE_URL")
+
 # Celery Configuration
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 CELERY_RESULT_BACKEND = 'rpc://'
@@ -160,3 +159,12 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 CELERY_TASK_TRACK_STARTED = True
+
+# Email settings
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = f"ALX Travel App <{env('EMAIL_HOST_USER')}>"
